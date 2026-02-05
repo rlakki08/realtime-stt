@@ -19,6 +19,7 @@ import argparse
 import asyncio
 import base64
 import os
+import subprocess
 import sys
 import threading
 import queue
@@ -205,6 +206,23 @@ class AudioStreamer:
     def _type_text(self, text):
         """Simulate keyboard typing."""
         print(f"⌨️  Typing: {text.strip()}")
+
+        # On macOS, pynput often has issues sending keystrokes to other applications
+        # due to sandbox/accessibility restrictions. AppleScript is more reliable.
+        if sys.platform == "darwin":
+            try:
+                # Use osascript to type text
+                # We need to escape double quotes and backslashes for AppleScript
+                safe_text = text.replace("\\", "\\\\").replace('"', '\\"')
+                script = f'tell application "System Events" to keystroke "{safe_text}"'
+
+                # Run the AppleScript
+                subprocess.run(["osascript", "-e", script], check=False)
+                return
+            except Exception as e:
+                print(f"⚠️  AppleScript typing failed: {e}. Falling back to pynput.")
+
+        # Fallback for other platforms or if AppleScript fails
         for char in text:
             self.keyboard_controller.type(char)
             # time.sleep(0.005) # Tiny delay if needed
