@@ -246,8 +246,20 @@ class PushToTalkListener:
         print(f"✨ Background Transcriber Ready")
         print(f"🎤 Hold '{self.trigger_key.upper()}' to speak")
         print("⌨️  Releasing key will stop recording and type text")
+
+        if self.trigger_key == "fn":
+            print(
+                "⚠️  NOTE: The 'Fn' key is not detectable by standard Python libraries on macOS."
+            )
+            print("    Please use a different key (like 'alt_r' or 'cmd_r').")
+
         if not self.streamer.should_type:
             print("🚫 Direct typing disabled (testing mode)")
+
+        print("\nNOTE: If you see a 'trusted process' error, enable Input Monitoring:")
+        print(
+            "      System Settings -> Privacy & Security -> Input Monitoring -> Add your Terminal"
+        )
         print("❌ Press Ctrl+C to exit")
 
         with keyboard.Listener(
@@ -273,7 +285,9 @@ def get_api_key() -> str:
 def main():
     parser = argparse.ArgumentParser(description="Push-to-Talk Transcriber")
     parser.add_argument(
-        "--key", default="f8", help="Key to hold for recording (default: F8)"
+        "--key",
+        default="alt_r",
+        help="Key to hold for recording (default: alt_r). Options: f1-f12, alt_r, ctrl_r, shift_r, cmd_r",
     )
     parser.add_argument(
         "--no-type",
