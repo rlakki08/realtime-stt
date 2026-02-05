@@ -145,6 +145,7 @@ class AudioStreamer:
                     "audio_format": AudioFormat.PCM_16000,
                     "sample_rate": SAMPLE_RATE,
                     "commit_strategy": CommitStrategy.MANUAL,  # Manual commit on key release
+                    "language_code": "en",  # Lock to English
                 }
             )
 
