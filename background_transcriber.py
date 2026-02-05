@@ -217,7 +217,27 @@ class AudioStreamer:
                 script = f'tell application "System Events" to keystroke "{safe_text}"'
 
                 # Run the AppleScript
-                subprocess.run(["osascript", "-e", script], check=False)
+                result = subprocess.run(
+                    ["osascript", "-e", script], capture_output=True, text=True
+                )
+
+                if result.returncode != 0:
+                    print(f"⚠️  AppleScript typing failed: {result.stderr.strip()}")
+                    if "not allowed to send keystrokes" in result.stderr:
+                        print(
+                            "\n🛑 PERMISSION ERROR: Your terminal needs 'Accessibility' permission to type."
+                        )
+                        print(
+                            "1. Open System Settings -> Privacy & Security -> Accessibility"
+                        )
+                        print(
+                            "2. Click '+' and add your terminal application (VS Code, iTerm, or Terminal)"
+                        )
+                        print("3. Toggle the switch ON.")
+                        print(
+                            "4. IMPORTANT: Restart your terminal app for changes to apply.\n"
+                        )
+                    return  # Don't fallback to pynput if we know it's a permission issue likely affecting both
                 return
             except Exception as e:
                 print(f"⚠️  AppleScript typing failed: {e}. Falling back to pynput.")
